@@ -17,6 +17,10 @@ func manifestDefinition() (str string) {
 			"production": {
 				"base_url": "https://someapp.herokapp.com/heroku/resources",
 				"sso_url":  "https://someapp.herokuapp.com/sso"
+			},
+			"test": {
+				"base_url": "http://localhost:3000/heroku/resources",
+				"sso_url":  "http://localhost:3000/sso"
 			}
 		}}`
 	return str
@@ -97,4 +101,9 @@ func TestRequiresApiPassword(t *testing.T) {
 func TestRequiresApiProduction(t *testing.T) {
 	jsonDef := manifestDefinition()
 	testKeyExists(t, jsonDef, "api['production']")
+}
+
+func TestRequiresApiTest(t *testing.T) {
+	jsonDef := manifestDefinition()
+	testKeyExists(t, jsonDef, "api['test']")
 }
