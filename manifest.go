@@ -8,6 +8,7 @@ import (
 type Manifest struct {
 	Id	 *string   `json:"id,omitempty"`
 	Api	 *string   `json:"api,omitempty"`
+	Regions	 *string   `json:"regions,omitempty"`
 	Contents []byte
 }
 
@@ -36,6 +37,10 @@ func (m Manifest) IsValid() (isValid bool, err error) {
 	  if o.Api == nil {
 	    isValid = false
 	    err = errors.New("Missing 'api'")
+	  }
+	  if o.Regions == nil {
+	    isValid = false
+	    err = errors.New("Missing 'regions'")
 	  }
 	}
 	return isValid, err

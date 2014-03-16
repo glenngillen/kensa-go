@@ -7,7 +7,7 @@ import (
 )
 
 func manifestDefinition() (str string) {
-	str = `{"id": "addon-name", "api": "{}"}`
+	str = `{"id": "addon-name", "api": "", "regions": ""}`
 	return str
 }
 
@@ -62,4 +62,11 @@ func TestRequiresApi(t *testing.T) {
 	jsonDef = deleteKey("api", jsonDef)
 	m := Manifest{Contents: []byte(jsonDef)}
 	testKeyExists(t, m, "Missing 'api'")
+}
+
+func TestRequiresRegions(t *testing.T) {
+	jsonDef := manifestDefinition()
+	jsonDef = deleteKey("regions", jsonDef)
+	m := Manifest{Contents: []byte(jsonDef)}
+	testKeyExists(t, m, "Missing 'regions'")
 }
