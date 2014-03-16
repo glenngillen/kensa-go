@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"encoding/json"
+	"regexp"
 	"strings"
 
 	"testing"
@@ -11,7 +12,8 @@ import (
 func manifestDefinition() (str string) {
 	str = `{"id": "addon-name",
 		"api": {
-			"regions": ""
+			"regions": "",
+			"password": ""
 		}}`
 	return str
 }
@@ -21,12 +23,14 @@ func deleteKey(key string, jsondef string) (str string) {
 	if err := json.Unmarshal([]byte(jsondef), &dat); err != nil {
 		panic(err)
 	}
-	if key == "api['regions']" {
-		api := dat["api"].(map[string]interface{})
-		delete(api, "regions")
-		dat["api"] = api
-	} else {
+	re, err := regexp.Compile(`api\['(.*)'\]`)
+	res := re.FindStringSubmatch(key)
+	if res == nil {
 		delete(dat, key)
+	} else {
+		api := dat["api"].(map[string]interface{})
+		delete(api, res[1])
+		dat["api"] = api
 	}
 	byt, err := json.Marshal(dat)
 	if err != nil {
@@ -79,4 +83,9 @@ func TestRequiresApi(t *testing.T) {
 func TestRequiresApiRegions(t *testing.T) {
 	jsonDef := manifestDefinition()
 	testKeyExists(t, jsonDef, "api['regions']")
+}
+
+func TestRequiresApiPassword(t *testing.T) {
+	jsonDef := manifestDefinition()
+	testKeyExists(t, jsonDef, "api['password']")
 }
