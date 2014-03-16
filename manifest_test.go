@@ -25,6 +25,15 @@ func deleteKey(key string, jsondef string) (str string) {
 	return str
 }
 
+func testKeyExists(t *testing.T, m Manifest, errMsg string) {
+	_, err := m.IsValid()
+	if err != nil && err.Error() == errMsg {
+		// Successfully checked
+	} else {
+		t.Errorf("Expected \"%s\" validation error to be raised", errMsg)
+	}
+}
+
 func TestRejectsInvalidJSON(t *testing.T) {
 	m := Manifest{Contents: []byte(`"foo": "adada"}`)}
 	if m.IsValidJSON() != false {
@@ -45,22 +54,12 @@ func TestRequiresId(t *testing.T) {
 	jsonDef := manifestDefinition()
 	jsonDef = deleteKey("id", jsonDef)
 	m := Manifest{Contents: []byte(jsonDef)}
-	_, err := m.IsValid()
-	if err != nil && err.Error() == "Missing ID" {
-		// Successfully checked for ID
-	} else {
-		t.Errorf("Requires 'id' property to be defined")
-	}
+	testKeyExists(t, m, "Missing 'id'")
 }
 
 func TestRequiresApi(t *testing.T) {
 	jsonDef := manifestDefinition()
 	jsonDef = deleteKey("api", jsonDef)
 	m := Manifest{Contents: []byte(jsonDef)}
-	_, err := m.IsValid()
-	if err != nil && err.Error() == "Missing API definition" {
-		// Successfully checked for API
-	} else {
-		t.Errorf("Requires 'api' object to be defined")
-	}
+	testKeyExists(t, m, "Missing 'api'")
 }

@@ -31,11 +31,11 @@ func (m Manifest) IsValid() (isValid bool, err error) {
 	} else {
 	  if o.Id == nil {
 	    isValid = false
-	    err = errors.New("Missing ID")
+	    err = errors.New("Missing 'id'")
 	  }
 	  if o.Api == nil {
 	    isValid = false
-	    err = errors.New("Missing API definition")
+	    err = errors.New("Missing 'api'")
 	  }
 	}
 	return isValid, err
