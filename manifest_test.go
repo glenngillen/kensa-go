@@ -1,8 +1,29 @@
 package main
 
 import (
+	"encoding/json"
+
 	"testing"
 )
+
+func manifestDefinition() (str string) {
+	str = `{"id": "addon-name", "api": "{}"}`
+	return str
+}
+
+func deleteKey(key string, jsondef string) (str string) {
+	var dat map[string]interface{}
+	if err := json.Unmarshal([]byte(jsondef), &dat); err != nil {
+		panic(err)
+	}
+	delete(dat, key)
+	byt, err := json.Marshal(dat)
+	if err != nil {
+		panic(err)
+	}
+	str = string(byt[:])
+	return str
+}
 
 func TestRejectsInvalidJSON(t *testing.T) {
 	m := Manifest{Contents: []byte(`"foo": "adada"}`)}
@@ -11,12 +32,35 @@ func TestRejectsInvalidJSON(t *testing.T) {
 	}
 }
 
+func TestValidates(t *testing.T) {
+	jsonDef := manifestDefinition()
+	m := Manifest{Contents: []byte(jsonDef)}
+	_, err := m.IsValid()
+	if err != nil {
+		t.Errorf("Manifest did not validate: %s", err)
+	}
+}
+
 func TestRequiresId(t *testing.T) {
-	m := Manifest{Contents: []byte(`{"foo": "adada"}`)}
+	jsonDef := manifestDefinition()
+	jsonDef = deleteKey("id", jsonDef)
+	m := Manifest{Contents: []byte(jsonDef)}
 	_, err := m.IsValid()
 	if err != nil && err.Error() == "Missing ID" {
 		// Successfully checked for ID
 	} else {
-		t.Errorf("Should require 'id' property to be defined")
+		t.Errorf("Requires 'id' property to be defined")
+	}
+}
+
+func TestRequiresApi(t *testing.T) {
+	jsonDef := manifestDefinition()
+	jsonDef = deleteKey("api", jsonDef)
+	m := Manifest{Contents: []byte(jsonDef)}
+	_, err := m.IsValid()
+	if err != nil && err.Error() == "Missing API definition" {
+		// Successfully checked for API
+	} else {
+		t.Errorf("Requires 'api' object to be defined")
 	}
 }
