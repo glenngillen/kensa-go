@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"encoding/json"
 	"strings"
 
@@ -8,7 +9,10 @@ import (
 )
 
 func manifestDefinition() (str string) {
-	str = `{"id": "addon-name", "api": "", "regions": ""}`
+	str = `{"id": "addon-name",
+		"api": {
+			"regions": ""
+		}}`
 	return str
 }
 
@@ -17,7 +21,13 @@ func deleteKey(key string, jsondef string) (str string) {
 	if err := json.Unmarshal([]byte(jsondef), &dat); err != nil {
 		panic(err)
 	}
-	delete(dat, key)
+	if key == "api['regions']" {
+		api := dat["api"].(map[string]interface{})
+		delete(api, "regions")
+		dat["api"] = api
+	} else {
+		delete(dat, key)
+	}
 	byt, err := json.Marshal(dat)
 	if err != nil {
 		panic(err)
@@ -27,7 +37,7 @@ func deleteKey(key string, jsondef string) (str string) {
 }
 
 func testKeyExists(t *testing.T, jsondef string, key string) {
-	s := []string{"Missing '", key, "'"}
+	s := []string{"Missing \"", key, "\""}
 	errMsg := strings.Join(s, "")
 	jsondef = deleteKey(key, jsondef)
 	m := Manifest{Contents: []byte(jsondef)}
@@ -35,6 +45,7 @@ func testKeyExists(t *testing.T, jsondef string, key string) {
 	if err != nil && err.Error() == errMsg {
 		// Successfully checked
 	} else {
+		fmt.Println(err)
 		t.Errorf("Expected \"%s\" validation error to be raised", errMsg)
 	}
 }
@@ -65,7 +76,7 @@ func TestRequiresApi(t *testing.T) {
 	testKeyExists(t, jsonDef, "api")
 }
 
-func TestRequiresRegions(t *testing.T) {
+func TestRequiresApiRegions(t *testing.T) {
 	jsonDef := manifestDefinition()
-	testKeyExists(t, jsonDef, "regions")
+	testKeyExists(t, jsonDef, "api['regions']")
 }
