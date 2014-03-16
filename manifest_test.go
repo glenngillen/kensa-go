@@ -13,7 +13,11 @@ func manifestDefinition() (str string) {
 	str = `{"id": "addon-name",
 		"api": {
 			"regions": "",
-			"password": ""
+			"password": "",
+			"production": {
+				"base_url": "https://someapp.herokapp.com/heroku/resources",
+				"sso_url":  "https://someapp.herokuapp.com/sso"
+			}
 		}}`
 	return str
 }
@@ -88,4 +92,9 @@ func TestRequiresApiRegions(t *testing.T) {
 func TestRequiresApiPassword(t *testing.T) {
 	jsonDef := manifestDefinition()
 	testKeyExists(t, jsonDef, "api['password']")
+}
+
+func TestRequiresApiProduction(t *testing.T) {
+	jsonDef := manifestDefinition()
+	testKeyExists(t, jsonDef, "api['production']")
 }

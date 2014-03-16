@@ -6,9 +6,14 @@ import (
 	"encoding/json"
 )
 
+type ManifestAPIEndpoints struct {
+	BaseURL		*string	  `json:"base_url,omitempty"`
+	SSOUrl		*string	  `json:"sso_url,omitempty"`
+}
 type ManifestAPI struct {
 	Regions		*string   `json:"regions,omitempty"`
 	Password	*string   `json:"password,omitempty"`
+	Production	*ManifestAPIEndpoints	`json:"production,omitempty"`
 }
 type Manifest struct {
 	Id	 *string   `json:"id,omitempty"`
@@ -49,6 +54,10 @@ func (m Manifest) IsValid() (isValid bool, err error) {
 			if o.Api.Password == nil {
 				isValid = false
 				err = errors.New("Missing \"api['password']\"")
+			}
+			if o.Api.Production == nil {
+				isValid = false
+				err = errors.New("Missing \"api['production']\"")
 			}
 		}
 	}
