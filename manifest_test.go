@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"strings"
 
 	"testing"
 )
@@ -25,7 +26,11 @@ func deleteKey(key string, jsondef string) (str string) {
 	return str
 }
 
-func testKeyExists(t *testing.T, m Manifest, errMsg string) {
+func testKeyExists(t *testing.T, jsondef string, key string) {
+	s := []string{"Missing '", key, "'"}
+	errMsg := strings.Join(s, "")
+	jsondef = deleteKey(key, jsondef)
+	m := Manifest{Contents: []byte(jsondef)}
 	_, err := m.IsValid()
 	if err != nil && err.Error() == errMsg {
 		// Successfully checked
@@ -52,21 +57,15 @@ func TestValidates(t *testing.T) {
 
 func TestRequiresId(t *testing.T) {
 	jsonDef := manifestDefinition()
-	jsonDef = deleteKey("id", jsonDef)
-	m := Manifest{Contents: []byte(jsonDef)}
-	testKeyExists(t, m, "Missing 'id'")
+	testKeyExists(t, jsonDef, "id")
 }
 
 func TestRequiresApi(t *testing.T) {
 	jsonDef := manifestDefinition()
-	jsonDef = deleteKey("api", jsonDef)
-	m := Manifest{Contents: []byte(jsonDef)}
-	testKeyExists(t, m, "Missing 'api'")
+	testKeyExists(t, jsonDef, "api")
 }
 
 func TestRequiresRegions(t *testing.T) {
 	jsonDef := manifestDefinition()
-	jsonDef = deleteKey("regions", jsonDef)
-	m := Manifest{Contents: []byte(jsonDef)}
-	testKeyExists(t, m, "Missing 'regions'")
+	testKeyExists(t, jsonDef, "regions")
 }
